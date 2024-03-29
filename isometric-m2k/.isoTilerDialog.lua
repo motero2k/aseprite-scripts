@@ -229,7 +229,9 @@ end
 
 isoTilerDialog = Dialog {
     title = "IsoTiler by @motero2k",
-    onclose = stop
+    onclose = function()
+        isoTiler.sourceSprite.events:off(printIsoLayer)
+    end
 }
 newsIsoTilerTab(isoTilerDialog)
 newFilePanel(isoTilerDialog, isoTiler.tile, isoTiler.repetitions)
