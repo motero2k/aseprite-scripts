@@ -31,7 +31,8 @@ function serializeTable(val, name, skipnewlines, depth) --https://stackoverflow.
     elseif type(val) == "boolean" then
         tmp = tmp .. (val and "true" or "false")
     else
-        tmp = tmp .. "\"[inserializeable datatype:" .. type(val) .. "]\""
+
+        tmp = tmp .. "undefinedType["..type(val).."], tostring="..tostring(val)
     end
 
     return tmp

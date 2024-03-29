@@ -8,16 +8,16 @@ function newsIsoTilerTab(dialog)
         text = "TILES"
     }
     dialog:label{
-        label = "    TIP:",
-        text = "Isometric pxArt is 2:1 ratio"
+        label = "TIP:",
+        text = "PixelArt Isometric ratio is 2:1"
     }
     dialog:newrow()
     dialog:label{
-        text = "so the tile width is twice the height"
+        text = "Pure Isometric ratio is 1.732:1"
     }
     dialog:number{
         id = "tileSizeX",
-        label = "    Tile width (" .. isoTiler.tile.size.x .. "):",
+        label = "Tile width (" .. isoTiler.tile.size.x .. "):",
         text = "" .. isoTiler.tile.size.x,
         onchange = function()
             isoTiler.tile.size.x = dialog.data.tileSizeX
@@ -25,7 +25,7 @@ function newsIsoTilerTab(dialog)
     }
     dialog:number{
         id = "tileSizeY",
-        label = "    Tile height (" .. isoTiler.tile.size.y .. "):",
+        label = "Tile height (" .. isoTiler.tile.size.y .. "):",
         text = "" .. isoTiler.tile.size.y,
         onchange = function()
             isoTiler.tile.size.y = dialog.data.tileSizeY
@@ -35,51 +35,16 @@ function newsIsoTilerTab(dialog)
     dialog:separator{
         text = "TEXTURE"
     }
-    dialog:label{
-        label = "    TIP:",
-        text = "Select the shape of the texture"
-    }
-    dialog:newrow()
+
 
     dialog:combobox{
         id = "selectionShape",
-        label = "    Texture Shape:",
+        label = "Texture Shape:",
         option = "fullCube64x64",
         options = {"fullCube64x64", "square64x64", "ground64x32"}, -- TODO: This from isoTiler paramater object
         onchange = function()
             isoTiler.selectionShape = dialog.data.selectionShape
 
-        end
-    }
-    dialog:label{
-        text = "Textures can be bigger than the tile size"
-    }
-    dialog:slider{
-        id = "shapeScale",
-        label = "    Texture scale:",
-        min = 1,
-        max = 500,
-        value = isoTiler.shapeScale,
-        onrelease = function()
-            isoTiler.shapeScale = dialog.data.shapeScale
-        end
-    }
-    dialog:label{
-        text = "[1-500] 100% means no change in scale. "
-    }
-    dialog:newrow()
-    dialog:label{
-        label = "    WARNING:",
-        text = "If you want to use selections, stop the AutoTiler"
-    }
-    dialog:button{
-        text = "Reset Scale",
-        onclick = function()
-            dialog:modify{
-                id = "shapeScale",
-                value = 100
-            }
-            isoTiler.shapeScale = 100
         end
     }
     dialog:button{
@@ -108,13 +73,44 @@ function newsIsoTilerTab(dialog)
         end
 
     }
+
+    dialog:slider{
+        id = "shapeScale",
+        label = "Texture scale:",
+        min = 1,
+        max = 500,
+        value = isoTiler.shapeScale,
+        onrelease = function()
+            isoTiler.shapeScale = dialog.data.shapeScale
+        end
+    }
+    dialog:button{
+        text = "Reset Scale",
+        onclick = function()
+            dialog:modify{
+                id = "shapeScale",
+                value = 100
+            }
+            isoTiler.shapeScale = 100
+        end
+    }
+    dialog:label{
+        text = "Textures can be bigger than the tile size"
+    }
+    dialog:newrow()
+    dialog:label{
+        text = "[1-500] 100% means no change in scale. "
+    }
+
+
+
     dialog:separator{
         text = "GENERATION"
     }
     -- sourceLayer
     dialog:combobox{
         id = "sourceLayer",
-        label = "    Source Layer",
+        label = "Source Layer",
         option = "Active layer",
         options = {"Active layer"}, -- TODO: Add all layers in the sprite?
         enabled = false,
@@ -123,7 +119,7 @@ function newsIsoTilerTab(dialog)
     }
     dialog:number{
         id = "repetitions",
-        label = "    Clones per axis:",
+        label = "Clones per axis:",
         text = "" .. isoTiler.repetitions,
         decimals = 0
     }
@@ -131,8 +127,8 @@ function newsIsoTilerTab(dialog)
         text = "EXECUTE"
     }
     dialog:label{
-        label = "    WARNING:",
-        text = "Never use execute once when AutoTiler is ON"
+        label = "WARNING:",
+        text = "Never use it when AutoTiler is ON"
     }
     dialog:button{
         id = "executeOnce",
@@ -151,19 +147,23 @@ function newsIsoTilerTab(dialog)
     dialog:separator{
         text = "AUTOTILER"
     }
-    dialog:label{
-        label = "    WARNING:",
-        text = "If you want to use selections, stop the AutoTiler"
-    }
+
     dialog:check{
         id = "started",
-        label = "    Activate -------->",
+        label = "Activate ------>",
         text = "AutoTiler is Stopped",
         selected = false,
         onclick = function()
             toggleAutoUpdate(dialog)
         end,
         focus = false
+    }
+    dialog:label{
+        text = "on spritechange updates 'Tiled-Layer' "
+    }
+    dialog:newrow()
+    dialog:label{
+        text = "To delete the 'Tiled-Layer' stop AutoTiler"
     }
     return dialog
 end
@@ -181,7 +181,7 @@ function newFilePanel(dialog, tile)
     -- Size input
     dialog:number{
         id = "ftileSizeX",
-        label = "    width:",
+        label = "width:",
         text = "" .. tile.size.x,
         decimals = 0,
         focus = false
@@ -189,7 +189,7 @@ function newFilePanel(dialog, tile)
     -- Size input
     dialog:number{
         id = "ftileSizeY",
-        label = "    height:",
+        label = "height:",
         text = "" .. tile.size.y,
         decimals = 0,
         focus = false
@@ -267,17 +267,23 @@ function toggleAutoUpdate(dialog)
 end
 
 function printIsoLayer(ev)
-    if ev.fromUndo then -- Skip the event if it comes from an undo operation
+    if ev and ev.fromUndo then -- Skip the event if it comes from an undo operation
         return
     end
+    local userSelection = Selection() -- Makes a new instance of a selection (not a reference to the active selection, a copy)
+    userSelection:add(app.activeSprite.selection)
+
+    
     if not initializeParameters() then
         return
     end
-
     propagateSelectionIsometric(isoTiler.sourceCel, isoTiler.selection, isoTiler.tile, isoTiler.repetitions)
+    -- Restore the user selection
+    if userSelection then
+        app.activeSprite.selection = userSelection
+    end
     return true
 end
-
 isoTilerDialog = Dialog {
     title = "IsoTiler by @motero2k",
     onclose = function()
