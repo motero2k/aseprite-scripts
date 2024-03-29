@@ -17,7 +17,7 @@ function newsIsoTilerTab(dialog)
     }
     dialog:number{
         id = "tileSizeX",
-        label = "    Tile width ("..isoTiler.tile.size.x .."):",
+        label = "    Tile width (" .. isoTiler.tile.size.x .. "):",
         text = "" .. isoTiler.tile.size.x,
         onchange = function()
             isoTiler.tile.size.x = dialog.data.tileSizeX
@@ -25,7 +25,7 @@ function newsIsoTilerTab(dialog)
     }
     dialog:number{
         id = "tileSizeY",
-        label = "    Tile height ("..isoTiler.tile.size.y .."):",
+        label = "    Tile height (" .. isoTiler.tile.size.y .. "):",
         text = "" .. isoTiler.tile.size.y,
         onchange = function()
             isoTiler.tile.size.y = dialog.data.tileSizeY
@@ -40,7 +40,7 @@ function newsIsoTilerTab(dialog)
         text = "Select the shape of the texture"
     }
     dialog:newrow()
-    
+
     dialog:combobox{
         id = "selectionShape",
         label = "    Texture Shape:",
@@ -48,7 +48,7 @@ function newsIsoTilerTab(dialog)
         options = {"fullCube64x64", "square64x64", "ground64x32"}, -- TODO: This from isoTiler paramater object
         onchange = function()
             isoTiler.selectionShape = dialog.data.selectionShape
-            
+
         end
     }
     dialog:label{
@@ -75,7 +75,10 @@ function newsIsoTilerTab(dialog)
     dialog:button{
         text = "Reset Scale",
         onclick = function()
-            dialog:modify{id = "shapeScale", value = 100}
+            dialog:modify{
+                id = "shapeScale",
+                value = 100
+            }
             isoTiler.shapeScale = 100
         end
     }
@@ -90,7 +93,7 @@ function newsIsoTilerTab(dialog)
                     x = app.sprite.width / 2,
                     y = app.sprite.height / 2
                 }
-            
+
                 isoTiler.selection.origin = Point(spriteCenter.x - isoTiler.selection.bounds.width / 2,
                     spriteCenter.y - isoTiler.selection.bounds.height / 2)
             end
@@ -135,6 +138,10 @@ function newsIsoTilerTab(dialog)
         id = "executeOnce",
         text = "Execute Once",
         onclick = function()
+            if not app.activeSprite then
+                app.alert("There is no active sprite")
+                return
+            end
             printIsoLayer()
             return
         end,
@@ -224,11 +231,16 @@ function createNewFile(tile, repetitions)
 end
 
 function toggleAutoUpdate(dialog)
-    if not initializeParameters() then
-        return
-    end
 
     if dialog.data.started then
+        if not app.activeSprite then
+            app.alert("There is no active sprite")
+            dialog:modify{
+                id = "started",
+                selected = false
+            }
+            return
+        end
         dialog:modify{
             id = "started",
             text = "AutoTiler Is Running..."
@@ -237,6 +249,7 @@ function toggleAutoUpdate(dialog)
             id = "executeOnce",
             enabled = false
         }
+        isoTiler.sourceSprite = app.activeSprite
         local listener = isoTiler.sourceSprite.events:on('change', printIsoLayer)
 
     else
@@ -253,7 +266,10 @@ function toggleAutoUpdate(dialog)
     return
 end
 
-function printIsoLayer()
+function printIsoLayer(ev)
+    if ev.fromUndo then -- Skip the event if it comes from an undo operation
+        return
+    end
     if not initializeParameters() then
         return
     end
