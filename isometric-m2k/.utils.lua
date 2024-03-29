@@ -171,14 +171,15 @@ function propagateSelectionIsometric(cel, selection, tile, repetitions)
     app.activeLayer = currentLayer
 end
 
--- Function to convert isometric coordinates to sprite coordinates
+-- Function to convert dimetric coordinates to sprite coordinates
 function IsometricToSpriteCoord(sprite, tile, isoX, isoY, isoZ)
     -- xNew  x*0.5*w + y*-0.5*w
     -- yNew  x*0.5*h + y*0.25*h
-    local spriteX = isoX * (tile.size.x / 2) - isoY * (tile.size.x / 2)
-    local spriteY = isoY * (tile.size.y / 2) + isoX * (tile.size.y / 2)
+    local dimetricRatio = tile.size.y / tile.size.x
+    local spriteX = (isoX- isoY) * tile.size.x * dimetricRatio
+    local spriteY = (isoX + isoY) * tile.size.y *dimetricRatio
     if isoZ then
-        spriteY = spriteY + isoZ * (tile.size.y / 2) + isoZ * (tile.size.y / 2) -- adds the z axis, z=1 at 00 it's the same as z=0 at 1,1
+        spriteY = spriteY + 2* isoZ * tile.size.y * dimetricRatio -- adds the z axis, z=1 at 00 it's the same as z=0 at 1,1
     end
     -- Center the 0,0 to the spriteCenter
     spriteX = spriteX + sprite.width / 2
