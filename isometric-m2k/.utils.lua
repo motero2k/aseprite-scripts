@@ -173,8 +173,7 @@ end
 
 -- Function to convert dimetric coordinates to sprite coordinates
 function IsometricToSpriteCoord(sprite, tile, isoX, isoY, isoZ)
-    -- xNew  x*0.5*w + y*-0.5*w
-    -- yNew  x*0.5*h + y*0.25*h
+
     local dimetricRatio = tile.size.y / tile.size.x
     local spriteX = (isoX- isoY) * tile.size.x * dimetricRatio
     local spriteY = (isoX + isoY) * tile.size.y *dimetricRatio

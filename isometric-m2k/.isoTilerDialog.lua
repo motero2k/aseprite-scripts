@@ -36,7 +36,6 @@ function newsIsoTilerTab(dialog)
         text = "TEXTURE"
     }
 
-
     dialog:combobox{
         id = "selectionShape",
         label = "Texture Shape:",
@@ -101,8 +100,6 @@ function newsIsoTilerTab(dialog)
     dialog:label{
         text = "[1-500] 100% means no change in scale. "
     }
-
-
 
     dialog:separator{
         text = "GENERATION"
@@ -270,18 +267,20 @@ function printIsoLayer(ev)
     if ev and ev.fromUndo then -- Skip the event if it comes from an undo operation
         return
     end
-    local userSelection = Selection() -- Makes a new instance of a selection (not a reference to the active selection, a copy)
-    userSelection:add(app.activeSprite.selection)
+    app.transaction(function()
 
-    
-    if not initializeParameters() then
-        return
-    end
-    propagateSelectionIsometric(isoTiler.sourceCel, isoTiler.selection, isoTiler.tile, isoTiler.repetitions)
-    -- Restore the user selection
-    if userSelection then
-        app.activeSprite.selection = userSelection
-    end
+        local userSelection = Selection() -- Makes a new instance of a selection (not a reference to the active selection, a copy)
+        userSelection:add(app.activeSprite.selection)
+
+        if not initializeParameters() then
+            return
+        end
+        propagateSelectionIsometric(isoTiler.sourceCel, isoTiler.selection, isoTiler.tile, isoTiler.repetitions)
+        -- Restore the user selection
+        if userSelection then
+            app.activeSprite.selection = userSelection
+        end
+    end)
     return true
 end
 isoTilerDialog = Dialog {
