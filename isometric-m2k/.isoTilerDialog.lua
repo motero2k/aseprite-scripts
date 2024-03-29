@@ -40,10 +40,7 @@ function newsIsoTilerTab(dialog)
         text = "Select the shape of the texture"
     }
     dialog:newrow()
-    dialog:label{
-        text = "Textures can be bigger than the tile size"
-    }
-
+    
     dialog:combobox{
         id = "selectionShape",
         label = "    Texture Shape:",
@@ -51,8 +48,11 @@ function newsIsoTilerTab(dialog)
         options = {"fullCube64x64", "square64x64", "ground64x32"}, -- TODO: This from isoTiler paramater object
         onchange = function()
             isoTiler.selectionShape = dialog.data.selectionShape
-
+            
         end
+    }
+    dialog:label{
+        text = "Textures can be bigger than the tile size"
     }
     dialog:slider{
         id = "shapeScale",
@@ -65,11 +65,45 @@ function newsIsoTilerTab(dialog)
         end
     }
     dialog:label{
-        text = "[1-500]->100% means no change in scale. "
+        text = "[1-500] 100% means no change in scale. "
     }
     dialog:newrow()
     dialog:label{
-        text = "Only recomended for square textures"
+        label = "    WARNING:",
+        text = "If you want to use selections, stop the AutoTiler"
+    }
+    dialog:button{
+        text = "Reset Scale",
+        onclick = function()
+            dialog:modify{id = "shapeScale", value = 100}
+            isoTiler.shapeScale = 100
+        end
+    }
+    dialog:button{
+        text = "Mask shape",
+        onclick = function()
+            if app.activeSprite then
+                isoTiler.selection = selectionByPoints(isoTiler.points[isoTiler.selectionShape], isoTiler.shapeScale)
+                -- The origin of the selection is the top left corner of the sprite
+                -- We want to center the selection in the sprite
+                local spriteCenter = {
+                    x = app.sprite.width / 2,
+                    y = app.sprite.height / 2
+                }
+            
+                isoTiler.selection.origin = Point(spriteCenter.x - isoTiler.selection.bounds.width / 2,
+                    spriteCenter.y - isoTiler.selection.bounds.height / 2)
+            end
+        end
+    }
+    dialog:button{
+        text = "Invert mask",
+        onclick = function()
+            if app.activeSprite then
+                app.command.InvertMask()
+            end
+        end
+
     }
     dialog:separator{
         text = "GENERATION"
@@ -95,7 +129,7 @@ function newsIsoTilerTab(dialog)
     }
     dialog:label{
         label = "    WARNING:",
-        text = "Never use execute once and auto tiler at the same time"
+        text = "Never use execute once when AutoTiler is ON"
     }
     dialog:button{
         id = "executeOnce",
@@ -106,12 +140,13 @@ function newsIsoTilerTab(dialog)
         end,
         hexpand = false
     }
+
+    dialog:separator{
+        text = "AUTOTILER"
+    }
     dialog:label{
         label = "    WARNING:",
         text = "If you want to use selections, stop the AutoTiler"
-    }
-    dialog:separator{
-        text = "AUTOTILER"
     }
     dialog:check{
         id = "started",
@@ -230,7 +265,9 @@ end
 isoTilerDialog = Dialog {
     title = "IsoTiler by @motero2k",
     onclose = function()
-        isoTiler.sourceSprite.events:off(printIsoLayer)
+        if isoTiler.sourceSprite then
+            isoTiler.sourceSprite.events:off(printIsoLayer)
+        end
     end
 }
 newsIsoTilerTab(isoTilerDialog)
