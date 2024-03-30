@@ -39,16 +39,28 @@ function newsIsoTilerTab(dialog)
     dialog:combobox{
         id = "selectionShape",
         label = "Texture Shape:",
-        option = "fullCube64x64",
-        options = {"fullCube64x64", "square64x64", "ground64x32"}, -- TODO: This from isoTiler paramater object
+        option = isoTiler.selectionShape,
+        options = isoTiler.selectionShapes,
         onchange = function()
             isoTiler.selectionShape = dialog.data.selectionShape
-
+            if isoTiler.selectionShape == isoTiler.selectionShapes[1] then
+                dialog:modify{
+                    id = "maskShape",
+                    enabled = false
+                }
+            else
+                dialog:modify{
+                    id = "maskShape",
+                    enabled = true
+                }
+            end
         end
     }
     dialog:button{
-        text = "Mask shape",
+        id="maskShape",
+        text = "Mask the Shape",
         onclick = function()
+
             if app.activeSprite then
                 isoTiler.selection = selectionByPoints(isoTiler.points[isoTiler.selectionShape], isoTiler.shapeScale)
                 -- The origin of the selection is the top left corner of the sprite
@@ -64,7 +76,7 @@ function newsIsoTilerTab(dialog)
         end
     }
     dialog:button{
-        text = "Invert mask",
+        text = "Invert active mask",
         onclick = function()
             if app.activeSprite then
                 app.command.InvertMask()
