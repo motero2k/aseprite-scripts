@@ -48,9 +48,17 @@ function newsIsoTilerTab(dialog)
                     id = "maskShape",
                     enabled = false
                 }
+                dialog:modify{
+                    id = "started",
+                    enabled = false
+                }
             else
                 dialog:modify{
                     id = "maskShape",
+                    enabled = true
+                }
+                dialog:modify{
+                    id = "started",
                     enabled = true
                 }
             end
@@ -168,11 +176,16 @@ function newsIsoTilerTab(dialog)
         focus = false
     }
     dialog:label{
-        text = "on spritechange updates 'Tiled-Layer' "
+        text = "Changes in sprite updates 'Tiled-Layer'"
     }
     dialog:newrow()
     dialog:label{
         text = "To delete the 'Tiled-Layer' stop AutoTiler"
+    }
+    dialog:newrow()
+    dialog:label{
+        label = "WARNING:",
+        text = "Cant be used with Custom User Selection"
     }
     return dialog
 end
@@ -260,6 +273,10 @@ function toggleAutoUpdate(dialog)
         }
         isoTiler.sourceSprite = app.activeSprite
         local listener = isoTiler.sourceSprite.events:on('change', printIsoLayer)
+        dialog:modify{
+            id = "selectionShape",
+            enabled = false
+        }
 
     else
         dialog:modify{
@@ -269,6 +286,10 @@ function toggleAutoUpdate(dialog)
         isoTiler.sourceSprite.events:off(printIsoLayer)
         dialog:modify{
             id = "executeOnce",
+            enabled = true
+        }
+        dialog:modify{
+            id = "selectionShape",
             enabled = true
         }
     end
