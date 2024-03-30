@@ -133,8 +133,8 @@ function setActiveBrushImageToCelSelection(cel, selection)
             -- DISCARDS the pixels in the selection that are outside the cel bounds
             -- getPixel returns a color, if the pixel is outside the cel bounds it returns WHITE, 
             -- we dont want white, we want transparent (non existing pixels)
-            if selectionPixel.x > cel.bounds.x and selectionPixel.x < cel.bounds.x + cel.bounds.width and
-                selectionPixel.y > cel.bounds.y and selectionPixel.y < cel.bounds.y + cel.bounds.height then
+            if selectionPixel.x >= cel.bounds.x and selectionPixel.x <= cel.bounds.x + cel.bounds.width and
+                selectionPixel.y >= cel.bounds.y and selectionPixel.y <= cel.bounds.y + cel.bounds.height then
                 local coloredPixel =
                     cel.image:getPixel(selectionPixel.x - cel.bounds.x, selectionPixel.y - cel.bounds.y)
                 newImage:drawPixel(newImgPixel.x, newImgPixel.y, coloredPixel)
