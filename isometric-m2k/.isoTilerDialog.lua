@@ -48,17 +48,9 @@ function newsIsoTilerTab(dialog)
                     id = "maskShape",
                     enabled = false
                 }
-                dialog:modify{
-                    id = "started",
-                    enabled = false
-                }
             else
                 dialog:modify{
                     id = "maskShape",
-                    enabled = true
-                }
-                dialog:modify{
-                    id = "started",
                     enabled = true
                 }
             end
@@ -185,7 +177,7 @@ function newsIsoTilerTab(dialog)
     dialog:newrow()
     dialog:label{
         label = "WARNING:",
-        text = "Cant be used with Custom User Selection"
+        text = "Won't update if selection tool is active"
     }
     return dialog
 end
@@ -272,30 +264,32 @@ function toggleAutoUpdate(dialog)
             enabled = false
         }
         isoTiler.sourceSprite = app.activeSprite
-        local listener = isoTiler.sourceSprite.events:on('change', printIsoLayer)
-        dialog:modify{
-            id = "selectionShape",
-            enabled = false
-        }
+        local listener = isoTiler.sourceSprite.events:on('change', printIsoLayerAuto)
 
     else
         dialog:modify{
             id = "started",
             text = "AutoTiler is Stopped"
         }
-        isoTiler.sourceSprite.events:off(printIsoLayer)
+        isoTiler.sourceSprite.events:off(printIsoLayerAuto)
         dialog:modify{
             id = "executeOnce",
-            enabled = true
-        }
-        dialog:modify{
-            id = "selectionShape",
             enabled = true
         }
     end
     return
 end
-
+function printIsoLayerAuto(ev)
+    -- active tool cant be selector
+    local toolId=""
+    if app.activeTool and app.activeTool.id then
+        toolId=app.activeTool.id
+        if (toolId == "magic_wand" or toolId =="polygonal_lasso" or toolId =="lasso" or toolId =="elliptical_marquee" or toolId =="rectangular_marquee")then
+            return
+        end
+    end
+    printIsoLayer(ev)
+end
 function printIsoLayer(ev)
     if ev and ev.fromUndo then -- Skip the event if it comes from an undo operation
         return
@@ -320,7 +314,7 @@ isoTilerDialog = Dialog {
     title = "IsoTiler by @motero2k",
     onclose = function()
         if isoTiler.sourceSprite then
-            isoTiler.sourceSprite.events:off(printIsoLayer)
+            isoTiler.sourceSprite.events:off(printIsoLayerAuto)
         end
     end
 }
